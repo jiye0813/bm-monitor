@@ -17,6 +17,7 @@ BM 기획 업무에서 경쟁사 분석은 필수지만, 게임별로 공식 사
 | 메이플스토리 | maplestory.nexon.com/News/CashShop | 제목에 코디·헤어·성형·로얄·의상·스타일 등 외형 키워드 포함된 것만 |
 | 로스트아크 | lostark.game.onstove.com/News/Notice/List?noticetype=shop | 말머리 "상점" + 작성일 기준 30일 이내 |
 | 아이온2 | aion2.plaync.com/ko-kr/board/notice/list | 제목에 "외형 상품" 포함된 것만 |
+| 마비노기 | mabinogi.nexon.com/page/news/notice_list.asp?searchtype=91&searchword=셀 | 등록일 기준 2주 이내 + 제목에 "박스" 또는 "컬렉션" 포함된 것만 |
 
 ---
 
@@ -27,6 +28,7 @@ BM 기획 업무에서 경쟁사 분석은 필수지만, 게임별로 공식 사
 - 메이플은 캐시샵 공지 중 외형 관련만 → 강화 스크롤, 편의 아이템 등 노이즈 자동 제외
 - 로스트아크는 말머리 "상점" 글만 + 30일 초과 오래된 공지 자동 제외
 - 아이온2는 "외형 상품" 키워드가 제목에 있는 공지만
+- 마비노기는 셀 카테고리 공지 중 2주 이내 등록 + 제목에 "박스" 또는 "컬렉션" 포함된 것만
 
 ### URL 끝 숫자 기준 정렬
 각 게임 공지의 URL 끝 번호가 클수록 최신 등록이므로, 이를 기준으로 내림차순 정렬합니다.
@@ -101,6 +103,3 @@ bm-monitor/
 **석지예** · 게임 사업 PM
 
 - 📧 jiye0813@naver.com
-- 🔗 [포트폴리오](https://www.notion.so/PM-26db3b5bd8e38065bc68fe3aa61283a0)
-- 🔗 [마비노기 의장 대시보드](https://jiye0813.github.io/mabinogi-dress/)
-- 🔗 [BM 매출 예측 시뮬레이터](https://jiye0813.github.io/bm-simulator/)

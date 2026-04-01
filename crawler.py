@@ -227,6 +227,92 @@ def crawl_aion2(driver):
 
 
 # ─────────────────────────────────────────────
+# 4. 마비노기 — 셀 카테고리 공지 + 2주 이내 + 박스/컬렉션
+# ─────────────────────────────────────────────
+
+def parse_mabinogi_date(date_str: str) -> datetime | None:
+    """
+    마비노기 날짜 포맷 파싱
+    예: "26.03.26" → datetime(2026, 3, 26)
+         "2026.03.26" → datetime(2026, 3, 26)
+    """
+    date_str = date_str.strip()
+    # YY.MM.DD 포맷
+    m = re.search(r"(\d{2})\.(\d{2})\.(\d{2})$", date_str)
+    if m:
+        year  = 2000 + int(m.group(1))
+        month = int(m.group(2))
+        day   = int(m.group(3))
+        try:
+            return datetime(year, month, day)
+        except ValueError:
+            return None
+    # YYYY.MM.DD 포맷
+    m2 = re.search(r"(\d{4})\.(\d{2})\.(\d{2})", date_str)
+    if m2:
+        try:
+            return datetime(int(m2.group(1)), int(m2.group(2)), int(m2.group(3)))
+        except ValueError:
+            return None
+    return None
+
+def crawl_mabinogi(driver):
+    """
+    마비노기 셀 카테고리 공지 (searchtype=91&searchword=셀)
+    - 2주 이내 등록된 게시글만
+    - 제목에 '박스' 또는 '컬렉션' 포함된 것만
+    """
+    url = "https://mabinogi.nexon.com/page/news/notice_list.asp?searchtype=91&searchword=%BC%A7"
+    results = []
+    cutoff = datetime.now() - timedelta(days=14)
+    try:
+        soup = fetch_page(driver, url, "body", timeout=15)
+
+        # 공지 목록 행 파싱 — tr 또는 li 구조
+        rows = soup.select("table.board_list tr, .notice_list tr, tbody tr, ul.list li")
+        if not rows:
+            rows = soup.select("tr, li")
+
+        for row in rows:
+            # 제목 링크
+            title_el = row.select_one("td.subject a, td.title a, .tit a, a.subject, a")
+            if not title_el:
+                continue
+            title = title_el.get_text(strip=True)
+            href  = title_el.get("href", "")
+            if not href:
+                continue
+            if not href.startswith("http"):
+                href = "https://mabinogi.nexon.com" + href
+
+            # 날짜 파싱
+            date_el = row.select_one("td.date, td.regdate, .date, time, td:last-child")
+            date_str = date_el.get_text(strip=True) if date_el else ""
+            post_date = parse_mabinogi_date(date_str)
+
+            # 2주 필터
+            if post_date and post_date < cutoff:
+                continue
+            # 날짜 파싱 실패면 일단 포함 (제목 필터에서 걸러짐)
+
+            # 제목 키워드 필터
+            if "박스" not in title and "컬렉션" not in title:
+                continue
+
+            if title:
+                results.append({
+                    "game": "마비노기",
+                    "type": "BM/캐시샵",
+                    "title": title,
+                    "date": date_str,
+                    "link": href,
+                })
+    except Exception as e:
+        print(f"  오류: {e}")
+    return dedup_by_link(results)
+
+
+# ─────────────────────────────────────────────
 # 실행 & 저장
 # ─────────────────────────────────────────────
 
@@ -238,9 +324,10 @@ def run_all():
     driver = get_driver()
     all_results = []
     crawlers = [
-        ("메이플 캐시샵 (외형)",   crawl_maple_cashshop),
-        ("로스트아크 (상점/30일)", crawl_lostark),
-        ("아이온2",                crawl_aion2),
+        ("메이플 캐시샵 (외형)",      crawl_maple_cashshop),
+        ("로스트아크 (상점/30일)",    crawl_lostark),
+        ("아이온2 (외형 상품)",       crawl_aion2),
+        ("마비노기 (박스/컬렉션/2주)", crawl_mabinogi),
     ]
     try:
         for name, fn in crawlers:
